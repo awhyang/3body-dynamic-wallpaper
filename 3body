@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+"""
+https://github.com/awhyang/simple-3body
+"""
+
+
 import sys
 import time
 import random
@@ -13,7 +18,7 @@ class Vector3():
         self.y=y
         self.z=z
 
-        #define vector on vector operations
+        #define vector on vector operations via operator overload
         
     def __sub__(self, o):
         return(Vector3(self.x - o.x, self.y - o.y, self.z - o.z))
@@ -117,7 +122,7 @@ def simulate(bodyOne, bodyTwo, bodyThree, dstep, sstep):
             F2 = bodyTwo.getGF(bodyOne)+bodyTwo.getGF(bodyThree)
             F3 = bodyThree.getGF(bodyOne)+bodyThree.getGF(bodyTwo)
 
-            #see line 72. Takes force* and dt(I set to 0.01)
+            #see line 76. Takes force* and dt(I set to 0.01)
             
             bodyOne.move(F1, 0.01)
             bodyTwo.move(F2, 0.01)
