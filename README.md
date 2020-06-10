@@ -1,4 +1,4 @@
-# simple-3body
+# 3body-dynamic-wallpaper
 
 
 
