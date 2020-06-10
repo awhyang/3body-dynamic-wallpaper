@@ -1,0 +1,104 @@
+#!/usr/bin/python
+
+import sys
+import time
+import random
+from random import uniform as u
+#import wand
+
+
+class Vector3():
+    def __init__(self, x, y, z):
+        self.x=x
+        self.y=y
+        self.z=z
+
+    def __sub__(self, o):
+        return(Vector3(self.x - o.x, self.y - o.y, self.z - o.z))
+
+    def __add__(self, o):
+        return(Vector3(self.x + o.x, self.y + o.y, self.z + o.z))
+
+    def divide(self, val):
+        return(Vector3(self.x / val, self.y / val, self.z / val))
+
+    def multiply(self, val):
+        return(Vector3(self.x * val, self.y * val, self.z * val))
+
+    def round(self):
+        return(Vector3(round(self.x, 1), round(self.y, 1), round(self.z, 1)))
+
+    def ret(self):
+        return(str(self.x) +' '+ str(self.y) +' '+ str(self.z))
+
+    def magnitude(self):
+        return((self.x**2 + self.y**2 + self.z**2) ** 0.5)
+
+    def scale(self, factor):
+        self.x =self.x * factor
+        self.y = self.y * factor
+        self.z = self.z * factor
+        return(self)
+
+
+class Body():
+    def __init__(self, M, pos, V):
+        self.M=M
+        self.pos=pos
+        self.V=V
+
+    def getGF(self, o):
+        f12 = getF(self, o)
+        f12v = (o.pos-self.pos)
+        return(f12v.scale((f12/f12v.magnitude())))
+
+    def move(self, F, dt):
+        dv = (F.divide(self.M)).multiply(dt)
+        dpos = (dv.divide(2) + self.V).multiply(dt)
+        self.V = self.V + dv
+        self.pos = self.pos + dpos
+
+
+pos1 = Vector3(u(-100, 100), u(-100, 100), u(-100, 100))
+pos2 = Vector3(u(-100, 100), u(-100, 100), u(-100, 100))
+pos3 = Vector3(u(-100, 100), u(-100, 100), u(-100, 100))
+
+V1 = Vector3(u(-0.1, 0.1), u(-0.1, 0.1), u(-0.1, 0.1))
+V2 = Vector3(u(-0.1, 0.1), u(-0.1, 0.1), u(-0.1, 0.1))
+V3 = Vector3(u(-0.1, 0.1), u(-0.1, 0.1), u(-0.1, 0.1))
+
+bodyOne = Body(10**10, pos1, V1)
+bodyTwo = Body(10**10, pos2, V2)
+bodyThree = Body(10**10, pos3, V3)
+
+
+def dist(b1, b2):
+    return(( ((b1.pos.x-b2.pos.x)**2) + ((b1.pos.y-b2.pos.y)**2) + ((b1.pos.z-b2.pos.z)**2) )**0.5)
+
+
+def getF(b1, b2):
+    G = 6.673*10**-11
+    return(G*(b1.M*b2.M)/((dist(b1, b2))**2))
+
+
+def simulate(bodyOne, bodyTwo, bodyThree, dstep, sstep):
+    while True:
+        for i in range(int(dstep/sstep)):
+            F1 = bodyOne.getGF(bodyTwo)+bodyOne.getGF(bodyThree)
+            F2 = bodyTwo.getGF(bodyOne)+bodyTwo.getGF(bodyThree)
+            F3 = bodyThree.getGF(bodyOne)+bodyThree.getGF(bodyTwo)
+
+            bodyOne.move(F1, 0.01)
+            bodyTwo.move(F2, 0.01)
+            bodyThree.move(F3, 0.01)
+
+
+
+
+        time.sleep(0.001)
+
+
+        sys.stdout.write('\r'+'Body One: '+str(bodyOne.pos.round().ret())+'  Body Two: '+str(bodyTwo.pos.round().ret())+'  Body Three: '+str(bodyThree.pos.round().ret()))
+
+
+simulate(bodyOne, bodyTwo, bodyThree, 0.1, 0.01)
