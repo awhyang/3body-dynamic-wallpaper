@@ -216,7 +216,7 @@ def simulate(bodyOne, bodyTwo, bodyThree, dstep, sstep):
             bodyTwo.move(  F2, dt)
             bodyThree.move(F3, dt)    
 
-        if (D12 > 1000 and D13 > 1000 and D23 > 1000):
+        if (D12 > 1000 or D13 > 1000 or D23 > 1000):
             init()
             
             simulate(init()[0], init()[1], init()[2], 10**-3, 10**-6)
