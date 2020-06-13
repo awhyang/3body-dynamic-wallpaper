@@ -4,6 +4,7 @@
 https://github.com/awhyang/3body-dynamic-wallpaper/
 """
 
+
 import sys
 import time
 import random
@@ -13,7 +14,7 @@ import subprocess as sp
 from wand.image import Image
 from wand.drawing import Drawing 
 from wand.color import Color
-from wand.display import display
+
 
 class Vector3():
     def __init__(self, x, y, z):        
@@ -33,8 +34,8 @@ class Vector3():
     def multiply(self, val):
         return(Vector3(self.x * val, self.y * val, self.z * val))
 
-    def round(self):
-        return(Vector3(round(self.x, 1), round(self.y, 1), round(self.z, 1)))
+    def round(self, points=1):
+        return(Vector3(round(self.x, points), round(self.y, points), round(self.z, points)))
 
     def ret(self):
         return(str(self.x) +' '+ str(self.y) +' '+ str(self.z))
@@ -76,15 +77,6 @@ class Body():
         return('pos='+self.pos.ret()+' v='+self.V.ret())
 
 
-pos1 = Vector3(u(-100, 100), u(-100, 100), u(0, 100))
-pos2 = Vector3(u(-100, 100), u(-100, 100), u(0, 100))
-pos3 = Vector3(u(-100, 100), u(-100, 100), u(0, 100))
-
-V1 = Vector3(u(-0.4, 0.4), u(-0.4, 0.4), u(-0.4, 0.4))
-V2 = Vector3(u(-0.4, 0.4), u(-0.4, 0.4), u(-0.4, 0.4))
-V3 = Vector3(u(-0.4, 0.4), u(-0.4, 0.4), u(-0.4, 0.4))
-
-
 def init():
     pos1 = Vector3(u(-100, 100), u(-100, 100), u(0, 100))
     pos2 = Vector3(u(-100, 100), u(-100, 100), u(0, 100))
@@ -95,36 +87,11 @@ def init():
     V3 = Vector3(u(-0.4, 0.4), u(-0.4, 0.4), u(-0.4, 0.4))
 
 
-    bodyOne = Body(1*10**14, pos1, V1, 'white')
-    bodyTwo = Body(1*10**14, pos2, V2, 'white')
+    bodyOne =   Body(1*10**14, pos1, V1, 'red')
+    bodyTwo =   Body(1*10**14, pos2, V2, 'yellow')
     bodyThree = Body(1*10**14, pos3, V3, 'white')
 
     return([bodyOne, bodyTwo, bodyThree])
-
-
-#pos1 = Vector3(0, 100, 50)
-#pos2 = Vector3(100, 0 , 50)
-#pos3 = Vector3(-20, 0, 100)
-
-#cos_30 = 0.866
-
-#pos1 = Vector3(-100, 0,  0)
-#pos2 = Vector3( 0, 0, -100)
-#pos3 = Vector3( 0, 50,  0)
-
-#V1 = Vector3(0, 0, 0)
-#V2 = Vector3(0, 0, 0)
-#V3 = Vector3(0, 0, 0) 
-
-#"""
-
-
-bodyOne = Body(1*10**14, pos1, V1, 'white')
-bodyTwo = Body(1*10**14, pos2, V2, 'white')
-bodyThree = Body(1*10**14, pos3, V3, 'white')
-
-
-
 
 
 def isContact(D12, D13, D23):
@@ -196,12 +163,14 @@ def createImage(b1, b2, b3 ):
                 image.save(draw(image), 'desktop.jpg')
 
 def simulate(bodyOne, bodyTwo, bodyThree, dstep, sstep):
+    D12, D13, D23 = 10, 10, 10
+    
     while True:
-        for i in range(int(dstep/sstep)):
+        for i in range(int(dstep)):
 
-            F12,D12 = bodyOne.getGF(bodyTwo)
-            F13,D13 = bodyOne.getGF(bodyThree)
-            F23,D23 = bodyTwo.getGF(bodyThree)
+            F12, D12 = bodyOne.getGF(bodyTwo)
+            F13, D13 = bodyOne.getGF(bodyThree)
+            F23, D23 = bodyTwo.getGF(bodyThree)
 
 
             F1 = F12 + F13
@@ -210,61 +179,25 @@ def simulate(bodyOne, bodyTwo, bodyThree, dstep, sstep):
 
             min_dist = min(D12, D13, D23)
         
-            dt=10**-7 if min_dist < 10**-3 else min_dist*sstep
+            dt = (sstep * 0.1) if min_dist < 10**-3 else min_dist*sstep
 
             bodyOne.move(  F1, dt)
             bodyTwo.move(  F2, dt)
             bodyThree.move(F3, dt)    
+     
 
-        if (D12 > 1000 or D13 > 1000 or D23 > 1000):
-            init()
-            
-            simulate(init()[0], init()[1], init()[2], 10**-3, 10**-6)
+        if (D12 > 300 or D13 > 300 or D23 > 300) or (D12 < 10**-3 or D13 < 10**-3 or D23 < 10**-3):
+            return(0)    
 
         createImage(bodyOne, bodyTwo, bodyThree)
 
-        time.sleep(0.001)
+        time.sleep(0.01)
         
         sp.Popen(['feh', '--bg-fill', 'desktop.jpg'])
 
-        sys.stdout.write('\r'+'Body One: '+str(bodyOne.pos.round().ret())+'  Body Two: '+str(bodyTwo.pos.round().ret())+'  Body Three: '+str(bodyThree.pos.round().ret()) + ' Velocity: ' + str(round(bodyOne.V.magnitude(), 3)) +' '+ str(round(bodyTwo.V.magnitude(), 3)) +' '+ str(round(bodyTwo.V.magnitude(), 3)))
+        sys.stdout.write('\r'+'1: '+str(bodyOne.pos.round().ret())+'  2: '+str(bodyTwo.pos.round().ret())+'  3: '+str(bodyThree.pos.round().ret()) + ' V: ' + str(round(bodyOne.V.magnitude(), 3)) +' '+ str(round(bodyTwo.V.magnitude(), 3)) +' '+ str(round(bodyTwo.V.magnitude(), 3)))
         
 
+while True:
+    simulate(init()[0], init()[1], init()[2], 1000, 10**-6)
 
-simulate(bodyOne, bodyTwo, bodyThree, 10**-3, 10**-6)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
