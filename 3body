@@ -63,7 +63,6 @@ class Body():
             return (Vector3(0,0,0), 0)
         else:
             f12v = (o.pos-self.pos)
-            #print('===',f12,f12v.magnitude())
             f12v.scale(f12/f12v.magnitude())
             return(f12v, dist)
 
