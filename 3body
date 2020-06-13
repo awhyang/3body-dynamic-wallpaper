@@ -116,10 +116,6 @@ def dist(b1, b2):
 def getF(b1, b2):
     G = 6.673*10**-11
     distance=dist(b1, b2)
-
-    #if distance<1:
-    #    print('\nsmall:', distance)
-    #    print(b1.pos.ret(), b2.pos.ret())
     return(0, distance) if distance<1E-3 else ((G*(b1.M*b2.M)/(distance**2)), distance)
 
 
